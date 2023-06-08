@@ -21,8 +21,12 @@ public class controller {
     private int players;
     private String board;
 
-    final  private List<String> gameFiles = new ArrayList<>();
+    public int newGame;
 
+    public int join;
+
+
+    public Game game;
 
     // load game
     @GetMapping("/loadGame/{id}")
@@ -39,8 +43,14 @@ public class controller {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("");
     }
 
-@PostMapping("savedGame")
- public ResponseEntity<List<String>> savedGame() {
+    //join game
+
+
+
+@GetMapping("/sendList")
+ public ResponseEntity<String> sendList() {
+
+    List<String> gameFiles = new ArrayList<>();
 
     File resources = new File("src/main/resources/templates/");
     File[] listOfFiles = resources.listFiles();
@@ -51,7 +61,7 @@ public class controller {
             gameFiles.add(filename);
         }
     }
-    return ResponseEntity.status(HttpStatus.OK).body(gameFiles);
+    return ResponseEntity.status(HttpStatus.OK).body(String.join(",", gameFiles));
 }
 
 
@@ -62,14 +72,27 @@ public class controller {
     public String newGame(@PathVariable String players, @PathVariable String board) {
 
 
-
         this.players = Integer.parseInt(players);
         this.board = board;
 
         System.out.println(players + "  players" + " , board  " + board);
 
+        //add players and board number into game to create a game
+        Game Game = new Game(Integer.parseInt(players), Integer.parseInt(board));
+
         return "OK";
     }
+
+
+    // send gameID
+    @GetMapping("/gameID")
+
+    public ResponseEntity<String> gameID() {
+        Game game = new Game(6,8);
+        int GameId = game.getGameId();
+        return (ResponseEntity.status(HttpStatus.OK).body(String.valueOf(GameId)));
+    }
+
 
 
     // save game
