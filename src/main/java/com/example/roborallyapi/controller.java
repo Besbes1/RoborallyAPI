@@ -24,8 +24,6 @@ public class controller {
     public int newGame;
 
     public int join;
-
-
     public Game game;
 
     // load game
@@ -44,6 +42,7 @@ public class controller {
     }
 
     //join game
+
 
 
 
@@ -68,10 +67,17 @@ public class controller {
 
 
     // initialize game
-    @GetMapping("/new/{players}/{board}")
-    public String newGame(@PathVariable String players, @PathVariable String board) {
+    @PostMapping("/new/{players}/{board}")
+    public ResponseEntity<String> newGame (@PathVariable String players, @PathVariable String board) {
 
+        String fileName = "src/main/resources/boardOptions/"+board;
 
+        try {
+            String fileContent = Files.readString(Paths.get(fileName), StandardCharsets.UTF_8);
+            return ResponseEntity.status(HttpStatus.OK).body(fileContent);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         this.players = Integer.parseInt(players);
         this.board = board;
 
@@ -80,9 +86,8 @@ public class controller {
         //add players and board number into game to create a game
         Game Game = new Game(Integer.parseInt(players), Integer.parseInt(board));
 
-        return "OK";
+        return ResponseEntity.status(HttpStatus.OK).body(board);
     }
-
 
     // send gameID
     @GetMapping("/gameID")
