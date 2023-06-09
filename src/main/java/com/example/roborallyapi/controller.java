@@ -26,6 +26,8 @@ public class controller {
     public int join;
     public Game game;
 
+    List<Game> running_Game;
+
     // load game
     @GetMapping("/loadGame/{id}")
     public ResponseEntity<String> loadGame(@PathVariable String id) {
@@ -43,15 +45,30 @@ public class controller {
 
     //join game
 
+    @PostMapping("/join/{gameId}")
+    public ResponseEntity<String> joinGame(@PathVariable int gameId) {
+        // Check if the game exists and is available for joining
+        if (game != null && game.getGameId() == gameId && !game.isStarted()) {
+            // Add the logic to join the game
+            // You can update the game state to include the new player or perform any necessary operations
+
+            // Return a success response
+            return ResponseEntity.status(HttpStatus.OK).body("Successfully joined the game.");
+        } else {
+            // Return an error response if the game doesn't exist or is not available for joining
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to join the game.");
+        }
+    }
 
 
 
-@GetMapping("/sendList")
- public ResponseEntity<String> sendList() {
+
+@GetMapping("/sendList/{path}")
+ public ResponseEntity<String> sendList(@PathVariable String path) {
 
     List<String> gameFiles = new ArrayList<>();
 
-    File resources = new File("src/main/resources/templates/");
+    File resources = new File("src/main/resources/" + path);
     File[] listOfFiles = resources.listFiles();
     for(int i = 0 ; i < listOfFiles.length ; i++) {
         if (listOfFiles[i].isFile()) {
@@ -64,40 +81,43 @@ public class controller {
 }
 
 
-
-
     // initialize game
-    @PostMapping("/new/{players}/{board}")
-    public ResponseEntity<String> newGame (@PathVariable String players, @PathVariable String board) {
-
-        String fileName = "src/main/resources/boardOptions/"+board;
-
+    @GetMapping("/new/{players}/{boardNum}")
+    public ResponseEntity<String> newGame (@PathVariable int players, @PathVariable String boardNum) {
+        System.out.println(players + "  players" + " , board  " + boardNum);
+        game = new Game(players, boardNum);
+        String filePath = "src/main/resources/boardOptions/"+ boardNum + ".json";
         try {
-            String fileContent = Files.readString(Paths.get(fileName), StandardCharsets.UTF_8);
+            String fileContent = Files.readString(Paths.get(filePath), StandardCharsets.UTF_8);
             return ResponseEntity.status(HttpStatus.OK).body(fileContent);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        this.players = Integer.parseInt(players);
-        this.board = board;
-
-        System.out.println(players + "  players" + " , board  " + board);
-
         //add players and board number into game to create a game
-        Game Game = new Game(Integer.parseInt(players), Integer.parseInt(board));
 
-        return ResponseEntity.status(HttpStatus.OK).body(board);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("");
     }
+
 
     // send gameID
     @GetMapping("/gameID")
-
     public ResponseEntity<String> gameID() {
-        Game game = new Game(6,8);
-        int GameId = game.getGameId();
-        return (ResponseEntity.status(HttpStatus.OK).body(String.valueOf(GameId)));
+        try {
+            int GameId = game.getGameId();
+            return (ResponseEntity.status(HttpStatus.OK).body(String.valueOf(GameId)));
+        } catch (NullPointerException e) // if game is null
+        {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Game is null");
+        }
+
     }
 
+    @GetMapping("/test")
+    public ResponseEntity<String> test() {
+
+        return ResponseEntity.status(HttpStatus.OK).body("serverisup");
+    }
 
 
     // save game

@@ -5,11 +5,16 @@ import java.util.Random;
 public class Game {
 
     int numPlayers;
-    int boardOption;
+    String boardOption;
 
     int gameId;
 
-    public Game(int numPlayers, int boardOption) {
+    public boolean started;
+    public boolean isStarted() {
+        return started;
+    }
+
+    public Game(int numPlayers, String boardOption) {
         this.numPlayers = numPlayers;
         this.boardOption = boardOption;
         this.gameId = gameId;
@@ -24,8 +29,5 @@ public class Game {
     public int  getGameId() {
         return gameId;
     }
-
-
-
 
 }
